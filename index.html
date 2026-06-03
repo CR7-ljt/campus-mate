@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园搭子 - 大学生互助平台</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 自定义配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e'
+                        },
+                        campus: {
+                            bg: '#fafbfc',
+                            card: '#ffffff',
+                            accent: '#86efac',
+                            text: '#1f2937',
+                            light: '#6b7280'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['PingFang SC', 'Microsoft YaHei', 'sans-serif']
+                    },
+                    borderRadius: {
+                        'xl': '12px',
+                        '2xl': '16px',
+                        '3xl': '20px'
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'card': '0 4px 20px -4px rgba(0, 0, 0, 0.08), 0 12px 28px -4px rgba(0, 0, 0, 0.06)',
+                        'hover': '0 8px 30px -4px rgba(0, 0, 0, 0.12), 0 16px 40px -8px rgba(0, 0, 0, 0.1)',
+                        'glow': '0 0 20px rgba(14, 165, 233, 0.15)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ==================== 全局基础样式 ==================== */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, #faf9f7 0%, #f5f3f0 50%, #f0ece6 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* 全局选中文本样式 */
+        ::selection {
+            background-color: rgba(14, 165, 233, 0.2);
+            color: inherit;
+        }
+        
+        /* ==================== 滚动条美化 ==================== */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.25);
+        }
+        
+        /* ==================== 磨砂毛玻璃导航 ==================== */
+        header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-item {
+            position: relative;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+            border-radius: 1px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-50%);
+        }
+        
+        .nav-item:hover::after,
+        .nav-item.active::after {
+            width: 100%;
+        }
+        
+        .nav-item.active {
+            color: #0ea5e9;
+            font-weight: 500;
+        }
+        
+        .nav-item:hover {
+            color: #0ea5e9;
+        }
+        
+        /* ==================== 卡片样式 ==================== */
+        .card-hover {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-hover::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.3), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+            border-color: rgba(14, 165, 233, 0.2);
+        }
+        
+        .card-hover:hover::before {
+            opacity: 1;
+        }
+        
+        /* 点击回弹效果 */
+        .card-hover:active {
+            transform: translateY(-2px) scale(0.99);
+        }
+        
+        /* ==================== 按钮样式 ==================== */
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45);
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+        }
+        
+        .btn-outline {
+            border: 1.5px solid rgba(14, 165, 233, 0.4);
+            color: #0ea5e9;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            background: transparent;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(14, 165, 233, 0.08);
+            border-color: #0ea5e9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline:active {
+            transform: scale(0.98);
+        }
+        
+        /* ==================== 功能卡片样式 ==================== */
+        .feature-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(14, 165, 233, 0.15);
+            border-color: rgba(14, 165, 233, 0.2);
+        }
+        
+        .feature-card:active {
+            transform: translateY(-3px) scale(0.99);
+        }
+        
+        /* ==================== 搜索结果样式 ==================== */
+        #searchResults {
+            animation: fadeInScale 0.2s ease;
+        }
+        
+        .search-result-item {
+            transition: all 0.2s ease;
+        }
+        
+        .search-result-item:hover {
+            background: rgba(14, 165, 233, 0.06);
+        }
+        
+        /* ==================== 卡片悬浮效果 ==================== */
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(14, 165, 233, 0.12);
+        }
+        
+        /* ==================== 标签样式 ==================== */
+        .tag {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            transition: all 0.2s ease;
+        }
+        
+        .tag:hover {
+            transform: scale(1.05);
+        }
+        
+        /* 标签状态色 */
+        .tag-urgent {
+            background: linear-gradient(135deg, #fed7aa 0%, #fb923c 100%);
+            color: #c2410c;
+        }
+        
+        .tag-new {
+            background: linear-gradient(135deg, #bbf7d0 0%, #4ade80 100%);
+            color: #15803d;
+        }
+        
+        .tag-full {
+            background: linear-gradient(135deg, #f3f4f6 0%, #d1d5db 100%);
+            color: #6b7280;
+        }
+        
+        .tag-hot {
+            background: linear-gradient(135deg, #bae6fd 0%, #38bdf8 100%);
+            color: #0369a1;
+        }
+        
+        /* ==================== 弹窗毛玻璃效果 ==================== */
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* ==================== 输入框样式 ==================== */
+        input, textarea, select {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1.5px solid rgba(0, 0, 0, 0.08);
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15), 0 0 20px rgba(14, 165, 233, 0.1);
+        }
+        
+        input, textarea {
+            border-radius: 12px;
+        }
+        
+        select {
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        
+        /* ==================== 页面加载动画 ==================== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease forwards;
+        }
+        
+        .animate-scale-in {
+            animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .animate-slide-down {
+            animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        /* 卡片延迟动画 */
+        .stagger-1 { animation-delay: 0.05s; }
+        .stagger-2 { animation-delay: 0.1s; }
+        .stagger-3 { animation-delay: 0.15s; }
+        .stagger-4 { animation-delay: 0.2s; }
+        .stagger-5 { animation-delay: 0.25s; }
+        .stagger-6 { animation-delay: 0.3s; }
+        
+        /* ==================== 返回顶部按钮 ==================== */
+        #backToTop {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+            z-index: 40;
+        }
+        
+        #backToTop.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        #backToTop:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            background: #0ea5e9;
+            color: white;
+        }
+        
+        #backToTop:active {
+            transform: scale(0.95);
+        }
+        
+        /* ==================== 页面进度条 ==================== */
+        #progressBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #0ea5e9, #38bdf8, #86efac);
+            z-index: 100;
+            transition: width 0.1s ease-out;
+            border-radius: 0 2px 2px 0;
+        }
+        
+        /* ==================== 移动端菜单 ==================== */
+        #mobileMenu {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .mobile-nav-item.active {
+            color: #0ea5e9;
+            font-weight: 500;
+        }
+        
+        /* ==================== 移动端发布按钮 ==================== */
+        #mobilePublishBtn {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            border-radius: 12px;
+            font-weight: 500;
+            box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        #mobilePublishBtn:hover {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45);
+        }
+        
+        #mobilePublishBtn:active {
+            transform: scale(0.98);
+        }
+        
+        /* ==================== 发布类型按钮 ==================== */
+        .publish-type-btn {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .publish-type-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .publish-type-btn.active {
+            transform: scale(1.02);
+        }
+        
+        /* ==================== 功能入口卡片 ==================== */
+        .feature-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.12);
+        }
+        
+        .feature-card:active {
+            transform: scale(0.98);
+        }
+        
+        /* ==================== 欢迎横幅 ==================== */
+        .welcome-banner {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #059669 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+            animation: shimmer 8s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(-20%) translateY(10%); }
+        }
+        
+        /* ==================== 空数据页面 ==================== */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .empty-state svg {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            opacity: 0.6;
+        }
+        
+        /* ==================== 隐藏默认样式 ==================== */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* ==================== 辅助类 ==================== */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* 渐变光影装饰 */
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        /* 分割线 */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.06), transparent);
+            margin: 24px 0;
+        }
+        
+        /* 发布弹窗类型切换 */
+        .type-btn-transition {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面浏览进度条 -->
+    <div id="progressBar" style="width: 0%;"></div>
+    
+    <!-- 背景装饰光球 -->
+    <div class="gradient-orb" style="width: 400px; height: 400px; background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, transparent 70%); top: -100px; right: -100px;"></div>
+    <div class="gradient-orb" style="width: 300px; height: 300px; background: radial-gradient(circle, rgba(134, 239, 172, 0.12) 0%, transparent 70%); bottom: 20%; left: -80px;"></div>
+    <div class="gradient-orb" style="width: 250px; height: 250px; background: radial-gradient(circle, rgba(251, 146, 60, 0.08) 0%, transparent 70%); top: 40%; right: -60px;"></div>
+    
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-primary-400 to-green-400 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">搭</span>
+                    </div>
+                    <span class="font-semibold text-lg text-gray-800">校园搭子</span>
+                </div>
+                
+                <!-- 导航菜单 - 桌面端 -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="nav-item nav-link text-primary-500 font-medium relative active">首页</a>
+                    <a href="#competition" class="nav-item nav-link text-gray-600 hover:text-primary-500 transition-colors relative">竞赛组队</a>
+                    <a href="#meal" class="nav-item nav-link text-gray-600 hover:text-primary-500 transition-colors relative">吃饭搭子</a>
+                    <a href="#hobby" class="nav-item nav-link text-gray-600 hover:text-primary-500 transition-colors relative">兴趣搭子</a>
+                    <a href="#profile" class="nav-item nav-link text-gray-600 hover:text-primary-500 transition-colors relative">个人中心</a>
+                </nav>
+                
+                <!-- 搜索框 -->
+                <div class="hidden md:flex items-center flex-1 max-w-md mx-8">
+                    <div class="relative w-full">
+                        <input type="text" id="searchInput" placeholder="搜索搭子、组队..." class="w-full px-4 py-2 pl-10 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- 用户操作 -->
+                <div class="hidden md:flex items-center space-x-3">
+                    <div id="userInfo" class="hidden items-center space-x-2">
+                        <img id="userAvatar" src="" alt="头像" class="w-8 h-8 rounded-full object-cover">
+                        <span id="userNickname" class="text-gray-700 font-medium"></span>
+                    </div>
+                    <button id="publishBtn" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium">发布需求</button>
+                    <button id="loginBtn" class="btn-outline px-4 py-2 rounded-lg text-sm font-medium">登录</button>
+                    <button id="registerBtn" class="btn-outline px-4 py-2 rounded-lg text-sm font-medium">注册</button>
+                    <button id="logoutBtn" class="hidden btn-outline px-4 py-2 rounded-lg text-sm font-medium">退出</button>
+                </div>
+                
+                <!-- 移动端菜单按钮 -->
+                <button id="mobileMenuBtn" class="md:hidden p-2 text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 移动端菜单 -->
+        <div id="mobileMenu" class="md:hidden bg-white border-t hidden">
+            <div class="px-4 py-3 space-y-2">
+                <a href="#home" class="mobile-nav-item block py-2 text-primary-500 font-medium active">首页</a>
+                <a href="#competition" class="mobile-nav-item block py-2 text-gray-600 hover:text-primary-500">竞赛组队</a>
+                <a href="#meal" class="mobile-nav-item block py-2 text-gray-600 hover:text-primary-500">吃饭搭子</a>
+                <a href="#hobby" class="mobile-nav-item block py-2 text-gray-600 hover:text-primary-500">兴趣搭子</a>
+                <a href="#profile" class="mobile-nav-item block py-2 text-gray-600 hover:text-primary-500">个人中心</a>
+                <div class="pt-2 border-t border-gray-100">
+                    <button id="mobileLoginBtn" class="w-full text-left py-2 text-gray-600 hover:text-primary-500">登录</button>
+                    <button id="mobileRegisterBtn" class="w-full text-left py-2 text-gray-600 hover:text-primary-500">注册</button>
+                    <button id="mobileLogoutBtn" class="hidden w-full text-left py-2 text-gray-600 hover:text-primary-500">退出</button>
+                </div>
+                <button id="mobilePublishBtn" class="btn-primary w-full px-4 py-2 rounded-lg text-sm font-medium mt-2">发布需求</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区域 -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- 首页 -->
+        <section id="home" class="page active">
+            <!-- 欢迎横幅 -->
+            <div class="bg-gradient-to-r from-primary-400 to-green-400 rounded-2xl p-8 mb-8 text-white animate-fade-in-up opacity-0">
+                <h1 class="text-3xl font-bold mb-2">校园搭子，遇见同行的你</h1>
+                <p class="text-white/80">找队友、找搭子、找朋友，让校园生活更精彩</p>
+            </div>
+            
+            <!-- 热门搭子 -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                    </svg>
+                    热门搭子
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="hotBuddies">
+                    <!-- 动态渲染 -->
+                </div>
+            </div>
+            
+            <!-- 最新动态 -->
+            <div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    最新组队动态
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="latestPosts">
+                    <!-- 动态渲染 -->
+                </div>
+            </div>
+        </section>
+        
+        <div class="section-divider"></div>
+        
+        <!-- 竞赛组队板块 -->
+        <section id="competition" class="page hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">竞赛组队</h1>
+                    <p class="text-gray-500 text-sm mt-1">寻找志同道合的队友，一起征战各类比赛</p>
+                </div>
+            </div>
+            
+            <!-- 分类标签 -->
+            <div class="flex flex-wrap gap-2 mb-6" id="competitionTags">
+                <button class="tag-filter active tag bg-primary-100 text-primary-700">全部</button>
+                <button class="tag-filter tag bg-blue-100 text-blue-700" data-type="math_modeling">数学建模</button>
+                <button class="tag-filter tag bg-green-100 text-green-700" data-type="internet_plus">互联网+</button>
+                <button class="tag-filter tag bg-purple-100 text-purple-700" data-type="challenge_cup">挑战杯</button>
+                <button class="tag-filter tag bg-orange-100 text-orange-700" data-type="big_creation">大创项目</button>
+                <button class="tag-filter tag bg-red-100 text-red-700" data-type="programming">程序竞赛</button>
+                <button class="tag-filter tag bg-pink-100 text-pink-700" data-type="english">英语竞赛</button>
+                <button class="tag-filter tag bg-yellow-100 text-yellow-700" data-type="sports">文体赛事</button>
+                <button class="tag-filter tag bg-gray-100 text-gray-700" data-type="other">其他竞赛</button>
+            </div>
+            
+            <!-- 卡片列表 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="competitionList">
+                <!-- 动态渲染 -->
+            </div>
+        </section>
+        
+        <div class="section-divider"></div>
+        
+        <!-- 吃饭搭子板块 -->
+        <section id="meal" class="page hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">吃饭搭子</h1>
+                    <p class="text-gray-500 text-sm mt-1">找个人一起干饭，让每一餐都更美味</p>
+                </div>
+            </div>
+            
+            <!-- 分类标签 -->
+            <div class="flex flex-wrap gap-2 mb-6" id="mealTags">
+                <button class="tag-filter active tag bg-primary-100 text-primary-700">全部</button>
+                <button class="tag-filter tag bg-orange-100 text-orange-700" data-type="canteen">食堂干饭</button>
+                <button class="tag-filter tag bg-pink-100 text-pink-700" data-type="restaurant">校外探店</button>
+                <button class="tag-filter tag bg-purple-100 text-purple-700" data-type="milk_tea">奶茶拼单</button>
+                <button class="tag-filter tag bg-indigo-100 text-indigo-700" data-type="supper">夜宵</button>
+                <button class="tag-filter tag bg-green-100 text-green-700" data-type="weekend">周末干饭</button>
+            </div>
+            
+            <!-- 卡片列表 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="mealList">
+                <!-- 动态渲染 -->
+            </div>
+        </section>
+        
+        <div class="section-divider"></div>
+        
+        <!-- 兴趣搭子板块 -->
+        <section id="hobby" class="page hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">兴趣搭子</h1>
+                    <p class="text-gray-500 text-sm mt-1">找到同好，一起享受课余时光</p>
+                </div>
+            </div>
+            
+            <!-- 分类标签 -->
+            <div class="flex flex-wrap gap-2 mb-6" id="hobbyTags">
+                <button class="tag-filter active tag bg-primary-100 text-primary-700">全部</button>
+                <button class="tag-filter tag bg-orange-100 text-orange-700" data-type="basketball">篮球</button>
+                <button class="tag-filter tag bg-green-100 text-green-700" data-type="running">跑步</button>
+                <button class="tag-filter tag bg-yellow-100 text-yellow-700" data-type="badminton">羽毛球</button>
+                <button class="tag-filter tag bg-purple-100 text-purple-700" data-type="movie">追剧观影</button>
+                <button class="tag-filter tag bg-blue-100 text-blue-700" data-type="study">读书学习</button>
+                <button class="tag-filter tag bg-red-100 text-red-700" data-type="game">游戏搭子</button>
+                <button class="tag-filter tag bg-pink-100 text-pink-700" data-type="photo">拍照探店</button>
+                <button class="tag-filter tag bg-teal-100 text-teal-700" data-type="ride">骑行散步</button>
+                <button class="tag-filter tag bg-indigo-100 text-indigo-700" data-type="handmade">手工爱好</button>
+                <button class="tag-filter tag bg-cyan-100 text-cyan-700" data-type="postgraduate">考研自习</button>
+            </div>
+            
+            <!-- 卡片列表 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="hobbyList">
+                <!-- 动态渲染 -->
+            </div>
+        </section>
+        
+        <div class="section-divider"></div>
+        
+        <!-- 个人中心 -->
+        <section id="profile" class="page hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 侧边栏 -->
+                <div class="md:col-span-1">
+                    <!-- 导航菜单 -->
+                    <div class="bg-white rounded-xl p-6">
+                        <div class="space-y-3">
+                            <a href="#profileContent" class="profile-nav-item active flex items-center text-gray-600 hover:text-primary-500 transition-colors">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                个人资料
+                            </a>
+                            <a href="#myPostsContent" class="profile-nav-item flex items-center text-gray-600 hover:text-primary-500 transition-colors">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                我的发布
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 内容区域 -->
+                <div class="md:col-span-2">
+                    <!-- 个人资料 -->
+                    <div id="profileContent" class="bg-white rounded-xl p-6">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-6">编辑个人资料</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">校园昵称</label>
+                                <input type="text" value="校园小达人" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">年级</label>
+                                    <select class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                        <option>大一</option>
+                                        <option>大二</option>
+                                        <option selected>大三</option>
+                                        <option>大四</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">专业</label>
+                                    <input type="text" value="计算机科学与技术" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">个性简介</label>
+                                <textarea rows="3" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">热爱编程，喜欢打篮球，寻找志同道合的小伙伴！</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">常驻校区</label>
+                                <select class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                    <option>东校区</option>
+                                    <option>西校区</option>
+                                    <option>南校区</option>
+                                    <option>北校区</option>
+                                </select>
+                            </div>
+                            <button id="saveProfileBtn" class="btn-primary px-6 py-2 rounded-lg">保存修改</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 我的发布 -->
+                    <div id="myPostsContent" class="bg-white rounded-xl p-6 hidden">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-lg font-semibold text-gray-800">我的发布</h2>
+                            <span class="text-sm text-gray-500">共 3 条</span>
+                        </div>
+                        <div class="space-y-4" id="myPostsList">
+                            <!-- 动态渲染 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 发布动态弹窗 -->
+    <div id="publishModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden animate-fade-in">
+        <div class="bg-white rounded-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto animate-scale-in">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">发布需求</h2>
+                    <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- 类型选择 -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">需求类型</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button class="publish-type-btn active p-3 border-2 border-primary-500 rounded-lg text-primary-500">
+                            <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            <span class="text-xs">竞赛组队</span>
+                        </button>
+                        <button class="publish-type-btn p-3 border-2 border-gray-200 rounded-lg text-gray-500 hover:border-gray-300">
+                            <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            <span class="text-xs">吃饭搭子</span>
+                        </button>
+                        <button class="publish-type-btn p-3 border-2 border-gray-200 rounded-lg text-gray-500 hover:border-gray-300">
+                            <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-xs">兴趣搭子</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 表单内容 -->
+                <div id="publishForm" class="space-y-4">
+                    <!-- 竞赛组队表单 -->
+                    <div id="competitionForm">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">标题</label>
+                            <input type="text" name="title" placeholder="输入标题" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">竞赛名称</label>
+                            <input type="text" name="competitionName" placeholder="如：全国大学生数学建模竞赛" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">组队人数</label>
+                                <input type="number" name="maxMembers" min="1" max="10" placeholder="最多人数" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">当前人数</label>
+                                <input type="number" name="currentMembers" min="1" max="10" placeholder="已有人数" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">擅长技能</label>
+                            <input type="text" name="skills" placeholder="用逗号分隔" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">招募要求</label>
+                            <textarea name="requirements" rows="3" placeholder="描述你的招募要求" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">比赛时间</label>
+                                <input type="date" name="deadline" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">联系方式</label>
+                                <input type="text" name="contact" placeholder="微信/QQ" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 吃饭搭子表单 -->
+                    <div id="mealForm" class="hidden">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">标题</label>
+                            <input type="text" name="title" placeholder="输入标题" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">时间</label>
+                            <input type="datetime-local" name="time" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">地点</label>
+                            <input type="text" name="location" placeholder="食堂/餐馆名称" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">口味偏好</label>
+                            <input type="text" name="preference" placeholder="如：爱吃辣、清淡" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">忌口</label>
+                            <input type="text" name="dietary" placeholder="如：不吃香菜、海鲜过敏" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">描述</label>
+                            <textarea name="description" rows="3" placeholder="随缘搭伴，一起吃饭聊天" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">联系方式</label>
+                            <input type="text" name="contact" placeholder="微信/QQ" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                    </div>
+                    
+                    <!-- 兴趣搭子表单 -->
+                    <div id="hobbyForm" class="hidden">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">标题</label>
+                            <input type="text" name="title" placeholder="输入标题" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">时间</label>
+                            <input type="datetime-local" name="time" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">地点</label>
+                            <input type="text" name="location" placeholder="活动地点" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">活动时长</label>
+                            <div class="flex gap-3">
+                                <label class="flex items-center">
+                                    <input type="radio" name="duration" value="短期" checked class="mr-2">
+                                    <span class="text-sm">短期</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="duration" value="长期" class="mr-2">
+                                    <span class="text-sm">长期</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">描述</label>
+                            <textarea name="description" rows="3" placeholder="描述你的兴趣爱好和期待" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">联系方式</label>
+                            <input type="text" name="contact" placeholder="微信/QQ" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="publishSubmitBtn" class="btn-primary w-full py-3 rounded-lg mt-6">发布需求</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 联系方式弹窗 -->
+    <div id="contactModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden animate-fade-in">
+        <div class="bg-white rounded-2xl w-full max-w-md mx-4 p-6 animate-scale-in">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">联系方式</h3>
+                <p class="text-gray-500 mb-4">点击下方按钮复制联系方式</p>
+                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                    <p id="contactInfo" class="text-gray-800 font-medium"></p>
+                </div>
+                <button id="copyContact" class="btn-primary px-6 py-2 rounded-lg">复制联系方式</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="deleteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden animate-fade-in">
+        <div class="bg-white rounded-2xl w-full max-w-sm mx-4 p-6 animate-scale-in">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">确认删除</h3>
+                <p class="text-gray-500 mb-6">确定要删除这条发布吗？此操作不可撤销。</p>
+                <div class="flex gap-3">
+                    <button id="cancelDelete" class="btn-outline flex-1 px-4 py-2 rounded-lg">取消</button>
+                    <button id="confirmDelete" class="btn-primary flex-1 px-4 py-2 rounded-lg">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录弹窗 -->
+    <div id="loginModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden animate-fade-in">
+        <div class="bg-white rounded-2xl w-full max-w-sm mx-4 p-6 animate-scale-in">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">登录</h2>
+                <button id="closeLoginModal" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">校园昵称</label>
+                    <input type="text" id="loginNickname" placeholder="请输入昵称" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <input type="password" id="loginPassword" placeholder="请输入密码" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+                <button id="doLogin" class="btn-primary w-full py-3 rounded-lg">登录</button>
+                <p class="text-center text-sm text-gray-500">
+                    还没有账号？<button id="switchToRegister" class="text-primary-500 hover:underline">立即注册</button>
+                </p>
+                <p class="text-center text-sm text-gray-400">
+                    测试账号：校园小达人 / 密码：123456
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注册弹窗 -->
+    <div id="registerModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden animate-fade-in">
+        <div class="bg-white rounded-2xl w-full max-w-sm mx-4 p-6 animate-scale-in max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">注册</h2>
+                <button id="closeRegisterModal" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">校园昵称</label>
+                    <input type="text" id="registerNickname" placeholder="请输入昵称" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <input type="password" id="registerPassword" placeholder="请输入密码" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">年级</label>
+                        <select id="registerGrade" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option value="大一">大一</option>
+                            <option value="大二">大二</option>
+                            <option value="大三">大三</option>
+                            <option value="大四">大四</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">专业</label>
+                        <input type="text" id="registerMajor" placeholder="专业名称" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">个性简介</label>
+                    <textarea id="registerBio" rows="2" placeholder="简单介绍一下自己" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">常驻校区</label>
+                    <select id="registerCampus" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option value="东校区">东校区</option>
+                        <option value="西校区">西校区</option>
+                        <option value="南校区">南校区</option>
+                        <option value="北校区">北校区</option>
+                    </select>
+                </div>
+                <button id="doRegister" class="btn-primary w-full py-3 rounded-lg">注册</button>
+                <p class="text-center text-sm text-gray-500">
+                    已有账号？<button id="switchToLogin" class="text-primary-500 hover:underline">立即登录</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载模拟数据 -->
+    <script src="data/mockData.js"></script>
+    <!-- 主脚本 -->
+    <script src="js/main.js"></script>
+    
+    <!-- 返回顶部按钮 -->
+    <button id="backToTop" class="hidden">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+</body>
+</html>
