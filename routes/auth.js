@@ -5,9 +5,18 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger');
 
+const getSecret = (name, developmentFallback) => {
+    const secret = process.env[name];
+    if (secret) return secret;
+    if (process.env.NODE_ENV === 'production') {
+        throw new Error(`${name} is required in production`);
+    }
+    return developmentFallback;
+};
+
 const createTokens = (userId) => {
-    const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET || 'default-secret', { expiresIn: '15m' });
-    const refreshToken = jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET || 'default-refresh-secret', { expiresIn: '7d' });
+    const accessToken = jwt.sign({ userId }, getSecret('JWT_SECRET', 'local-development-access-secret'), { expiresIn: '15m' });
+    const refreshToken = jwt.sign({ userId }, getSecret('JWT_REFRESH_SECRET', 'local-development-refresh-secret'), { expiresIn: '7d' });
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     
     return { accessToken, refreshToken, expiresAt };
@@ -29,7 +38,7 @@ const getUserData = (user) => {
 router.post('/register', async (req, res) => {
     try {
         const { nickname, password, grade, major, bio, campus } = req.body;
-        logger.info('收到注册请求', { nickname, grade, major });
+        logger.info('收到注册请求', { nickname });
         
         if (!nickname || !password || !grade || !major) {
             return res.status(400).json({ success: false, message: '请填写完整信息' });
@@ -64,7 +73,7 @@ router.post('/register', async (req, res) => {
         });
     } catch (error) {
         logger.error('注册失败', { error: error.message, stack: error.stack });
-        res.status(500).json({ success: false, message: '注册失败：' + error.message });
+        res.status(500).json({ success: false, message: process.env.NODE_ENV === 'production' ? '注册失败，请稍后重试' : '注册失败：' + error.message });
     }
 });
 
@@ -106,7 +115,7 @@ router.post('/login', async (req, res) => {
         });
     } catch (error) {
         logger.error('登录失败', { error: error.message, stack: error.stack });
-        res.status(500).json({ success: false, message: '登录失败：' + error.message });
+        res.status(500).json({ success: false, message: process.env.NODE_ENV === 'production' ? '登录失败，请稍后重试' : '登录失败：' + error.message });
     }
 });
 
@@ -120,7 +129,7 @@ router.post('/refresh', async (req, res) => {
 
         let decoded;
         try {
-            decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'default-refresh-secret');
+            decoded = jwt.verify(refreshToken, getSecret('JWT_REFRESH_SECRET', 'local-development-refresh-secret'));
         } catch (err) {
             return res.status(401).json({ success: false, message: '无效的refresh token' });
         }
@@ -163,7 +172,7 @@ router.post('/logout', async (req, res) => {
 
         let decoded;
         try {
-            decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret');
+            decoded = jwt.verify(token, getSecret('JWT_SECRET', 'local-development-access-secret'));
         } catch (err) {
             return res.json({ success: true, message: '退出成功' });
         }
@@ -190,7 +199,7 @@ router.get('/profile', async (req, res) => {
 
         let decoded;
         try {
-            decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret');
+            decoded = jwt.verify(token, getSecret('JWT_SECRET', 'local-development-access-secret'));
         } catch (err) {
             return res.status(401).json({ success: false, message: 'token已过期或无效' });
         }

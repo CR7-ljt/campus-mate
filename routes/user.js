@@ -3,23 +3,37 @@ const router = express.Router();
 const db = require('../database/db');
 const jwt = require('jsonwebtoken');
 
+function getUserId(req) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return null;
+  return jwt.verify(token, process.env.JWT_SECRET).userId;
+}
+
+function handleError(res, error, message) {
+  const isAuthError = error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError';
+  if (isAuthError) {
+    return res.status(401).json({ success: false, message: '登录状态已失效，请重新登录' });
+  }
+  const status = error.statusCode || 500;
+  const safeMessage = process.env.NODE_ENV === 'production' && status >= 500 ? '服务器内部错误' : message;
+  return res.status(status).json({ success: false, message: safeMessage });
+}
+
 router.put('/profile', async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    
-    if (!token) {
-      return res.status(401).json({ success: false, message: '未登录' });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ success: false, message: '未登录' });
     const { nickname, grade, major, bio, campus } = req.body;
+    if (!nickname?.trim() || !major?.trim()) {
+      return res.status(400).json({ success: false, message: '请填写昵称和专业' });
+    }
 
     await db.run(
       'UPDATE users SET nickname = ?, grade = ?, major = ?, bio = ?, campus = ? WHERE id = ?',
-      [nickname, grade, major, bio, campus, decoded.userId]
+      [nickname.trim(), grade, major.trim(), bio || '', campus || '', userId]
     );
 
-    const user = await db.get('SELECT * FROM users WHERE id = ?', [decoded.userId]);
+    const user = await db.get('SELECT * FROM users WHERE id = ?', [userId]);
 
     res.json({
       success: true,
@@ -36,23 +50,18 @@ router.put('/profile', async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: '更新失败', error: error.message });
+    handleError(res, error, '更新失败');
   }
 });
 
 router.get('/posts', async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ success: false, message: '未登录' });
     
-    if (!token) {
-      return res.status(401).json({ success: false, message: '未登录' });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    const competitions = await db.query('SELECT * FROM competitions WHERE user_id = ?', [decoded.userId]);
-    const meals = await db.query('SELECT * FROM meals WHERE user_id = ?', [decoded.userId]);
-    const hobbies = await db.query('SELECT * FROM hobbies WHERE user_id = ?', [decoded.userId]);
+    const competitions = await db.query('SELECT * FROM competitions WHERE user_id = ?', [userId]);
+    const meals = await db.query('SELECT * FROM meals WHERE user_id = ?', [userId]);
+    const hobbies = await db.query('SELECT * FROM hobbies WHERE user_id = ?', [userId]);
 
     const posts = [
       ...competitions.map(p => ({ ...p, postType: 'competition' })),
@@ -64,65 +73,56 @@ router.get('/posts', async (req, res) => {
 
     res.json({ success: true, data: posts });
   } catch (error) {
-    res.status(500).json({ success: false, message: '获取发布失败', error: error.message });
+    handleError(res, error, '获取发布失败');
   }
 });
 
 router.get('/favorites', async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    
-    if (!token) {
-      return res.status(401).json({ success: false, message: '未登录' });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const favorites = await db.query('SELECT * FROM favorites WHERE user_id = ?', [decoded.userId]);
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ success: false, message: '未登录' });
+    const favorites = await db.query('SELECT * FROM favorites WHERE user_id = ?', [userId]);
 
     res.json({ success: true, data: favorites });
   } catch (error) {
-    res.status(500).json({ success: false, message: '获取收藏失败', error: error.message });
+    handleError(res, error, '获取收藏失败');
   }
 });
 
 router.post('/favorites', async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    
-    if (!token) {
-      return res.status(401).json({ success: false, message: '未登录' });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ success: false, message: '未登录' });
     const { postType, postId } = req.body;
+    if (!['competition', 'meal', 'hobby'].includes(postType) || !Number.isInteger(Number(postId)) || Number(postId) < 1) {
+      return res.status(400).json({ success: false, message: '收藏信息无效' });
+    }
 
     await db.run(
       'INSERT OR IGNORE INTO favorites (user_id, post_type, post_id) VALUES (?, ?, ?)',
-      [decoded.userId, postType, postId]
+      [userId, postType, Number(postId)]
     );
 
     res.json({ success: true, message: '收藏成功' });
   } catch (error) {
-    res.status(500).json({ success: false, message: '收藏失败', error: error.message });
+    handleError(res, error, '收藏失败');
   }
 });
 
 router.delete('/favorites/:id', async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    
-    if (!token) {
-      return res.status(401).json({ success: false, message: '未登录' });
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ success: false, message: '未登录' });
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) {
+      return res.status(400).json({ success: false, message: '收藏编号无效' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const { id } = req.params;
-
-    await db.run('DELETE FROM favorites WHERE id = ? AND user_id = ?', [id, decoded.userId]);
+    await db.run('DELETE FROM favorites WHERE id = ? AND user_id = ?', [id, userId]);
 
     res.json({ success: true, message: '取消收藏成功' });
   } catch (error) {
-    res.status(500).json({ success: false, message: '取消收藏失败', error: error.message });
+    handleError(res, error, '取消收藏失败');
   }
 });
 

@@ -10,8 +10,8 @@
 
 ## 项目链接
 
-- GitHub 仓库：https://github.com/CR7-LJT/campus-mate
-- 在线部署：部署到 Railway 后可在这里补充访问地址
+- GitHub 仓库：https://github.com/CR7-ljt/campus-mate
+- 在线部署：https://campus-mate-ruddy.vercel.app（页面已部署；账号和帖子 API 仍需配置持久化数据库后才能作为生产服务使用）
 
 ## 项目简介
 
@@ -24,7 +24,7 @@ Campus Mate 是一个围绕大学生日常互助需求设计的校园搭子平�
 - JWT 登录认证
 - SQLite 数据持久化
 - 用户发布、编辑、删除、收藏等业务逻辑
-- Railway 部署配置
+- Railway 部署配置；Vercel 前端发布配置
 
 ## 项目预览
 

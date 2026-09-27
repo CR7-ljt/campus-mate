@@ -115,7 +115,6 @@ function closeRegisterModal() {
 }
 
 async function doLogin() {
-    console.log('doLogin 被调用');
     const nickname = document.getElementById('loginNickname').value;
     const password = document.getElementById('loginPassword').value;
     
@@ -125,14 +124,12 @@ async function doLogin() {
     }
     
     try {
-        console.log('发送登录请求:', { nickname, password });
         const response = await fetch(`${API_BASE}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nickname, password })
         });
         const result = await response.json();
-        console.log('登录结果:', result);
         
         if (result.success) {
             token = result.accessToken;
@@ -154,7 +151,6 @@ async function doLogin() {
 }
 
 async function doRegister() {
-    console.log('doRegister 被调用');
     try {
         const nickname = document.getElementById('registerNickname').value;
         const password = document.getElementById('registerPassword').value;
@@ -163,21 +159,18 @@ async function doRegister() {
         const bio = document.getElementById('registerBio').value;
         const campus = document.getElementById('registerCampus').value;
         
-        console.log('注册信息:', { nickname, grade, major, password: password.length > 0, major: major.length > 0 });
         
         if (!nickname || !password || !grade || !major) {
             alert('请填写完整信息');
             return;
         }
         
-        console.log('发送请求:', { nickname, password, grade, major, bio, campus });
         const response = await fetch(`${API_BASE}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nickname, password, grade, major, bio, campus })
         });
         const result = await response.json();
-        console.log('注册结果:', result);
         
         if (result.success) {
             token = result.accessToken;
@@ -289,14 +282,14 @@ function showSearchResults(results) {
         <div class="max-h-96 overflow-y-auto">
             ${results.slice(0, 10).map(item => `
                 <div class="search-result-item p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-b-0" 
-                     data-category="${item.category}" data-id="${item.id}">
+                     data-category="${escapeHtml(item.category)}" data-id="${escapeHtml(item.id)}">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
-                            <h4 class="font-medium text-gray-800">${item.title}</h4>
+                            <h4 class="font-medium text-gray-800">${escapeHtml(item.title)}</h4>
                             <p class="text-sm text-gray-500 mt-1">
                                 ${item.category === 'competition' ? '竞赛组队' : 
                                   item.category === 'meal' ? '吃饭搭子' : '兴趣搭子'} · 
-                                ${item.author?.nickname || '匿名'}
+                                ${escapeHtml(item.author?.nickname || '匿名')}
                             </p>
                         </div>
                         <span class="tag ${getCategoryTagClass(item.category)}">
@@ -491,6 +484,16 @@ function renderLatestPosts() {
     bindContactButtons();
 }
 
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[character]);
+}
+
 function createCard(item) {
     const categories = mockData.categories;
     let categoryInfo;
@@ -500,47 +503,49 @@ function createCard(item) {
         categoryInfo = categories.competition[item.type] || { name: '其他竞赛', color: 'bg-gray-100 text-gray-700' };
         extraInfo = `
             <div class="flex items-center text-sm text-gray-500 mt-2">
-                <span class="mr-3">👥 ${item.currentMembers}/${item.maxMembers}人</span>
-                <span>⏰ ${item.deadline}</span>
+                <span class="mr-3">👥 ${escapeHtml(item.currentMembers)}/${escapeHtml(item.maxMembers)}人</span>
+                <span>⏰ ${escapeHtml(item.deadline)}</span>
             </div>
         `;
     } else if (item.type === 'meal') {
         categoryInfo = categories.meal[item.type] || { name: '其他', color: 'bg-gray-100 text-gray-700' };
         extraInfo = `
             <div class="flex items-center text-sm text-gray-500 mt-2">
-                <span class="mr-3">🕐 ${item.time}</span>
-                <span>📍 ${item.location}</span>
+                <span class="mr-3">🕐 ${escapeHtml(item.time)}</span>
+                <span>📍 ${escapeHtml(item.location)}</span>
             </div>
         `;
     } else {
         categoryInfo = categories.hobby[item.type] || { name: '其他', color: 'bg-gray-100 text-gray-700' };
         extraInfo = `
             <div class="flex items-center text-sm text-gray-500 mt-2">
-                <span class="mr-3">🕐 ${item.time}</span>
-                <span>📍 ${item.location}</span>
-                <span class="ml-3 px-2 py-0.5 bg-gray-100 rounded text-xs">${item.duration}</span>
+                <span class="mr-3">🕐 ${escapeHtml(item.time)}</span>
+                <span>📍 ${escapeHtml(item.location)}</span>
+                <span class="ml-3 px-2 py-0.5 bg-gray-100 rounded text-xs">${escapeHtml(item.duration)}</span>
             </div>
         `;
     }
     
     const urgentBadge = item.urgent ? '<span class="ml-2 px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded">紧急</span>' : '';
+    const safeType = escapeHtml(item.type);
+    const safeContact = escapeHtml(item.contact);
     
     return `
-        <div class="bg-white rounded-xl p-4 card-hover cursor-pointer" data-id="${item.id}" data-type="${item.type}">
+        <div class="bg-white rounded-xl p-4 card-hover cursor-pointer" data-id="${escapeHtml(item.id)}" data-type="${safeType}">
             <div class="flex items-start justify-between mb-2">
-                <span class="tag ${categoryInfo.color}">${categoryInfo.name}</span>
+                <span class="tag ${categoryInfo.color}">${escapeHtml(categoryInfo.name)}</span>
                 ${urgentBadge}
             </div>
-            <h3 class="font-medium text-gray-800 mb-2 line-clamp-2">${item.title}</h3>
+            <h3 class="font-medium text-gray-800 mb-2 line-clamp-2">${escapeHtml(item.title)}</h3>
             ${extraInfo}
             <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
                 <div class="flex items-center">
                     <div class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs text-gray-500 mr-2">
-                        ${item.author?.nickname?.charAt(0) || '?'}
+                        ${escapeHtml(item.author?.nickname?.charAt(0) || '?')}
                     </div>
-                    <span class="text-xs text-gray-500">${item.author?.nickname || '匿名'} · ${item.author?.grade || ''}</span>
+                    <span class="text-xs text-gray-500">${escapeHtml(item.author?.nickname || '匿名')} · ${escapeHtml(item.author?.grade || '')}</span>
                 </div>
-                <button class="contact-btn text-primary-500 text-sm hover:text-primary-600" data-contact="${item.contact}">查看联系方式</button>
+                <button class="contact-btn text-primary-500 text-sm hover:text-primary-600" data-contact="${safeContact}">查看联系方式</button>
             </div>
         </div>
     `;
@@ -699,8 +704,8 @@ function renderMyPosts() {
     container.innerHTML = myPosts.map(item => `
         <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
             <div class="flex-1">
-                <h4 class="font-medium text-gray-800">${item.title}</h4>
-                <p class="text-sm text-gray-500">发布于 ${item.createdAt}</p>
+                <h4 class="font-medium text-gray-800">${escapeHtml(item.title)}</h4>
+                <p class="text-sm text-gray-500">发布于 ${escapeHtml(item.createdAt)}</p>
             </div>
             <div class="flex items-center gap-2">
                 <span class="${item.status === 'active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'} text-xs px-2 py-1 rounded">${item.status === 'active' ? '进行中' : '已结束'}</span>

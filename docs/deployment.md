@@ -1,6 +1,6 @@
 # Campus Mate 部署说明
 
-本文档说明如何将 Campus Mate 部署到 Railway，并避免把本地敏感文件提交到公开仓库。
+本文档说明如何本地运行，以及如何选择适合 SQLite 持久化需求的托管平台。Vercel 的函数文件系统是临时的，不可直接用于持久化 SQLite 数据。
 
 ## 1. 本地准备
 
@@ -48,9 +48,19 @@ campus_mate.db-wal
 const RAILWAY_VOLUME_DIR = process.env.RAILWAY_VOLUME_DIR;
 ```
 
-配置后，数据库会写入 Volume 目录。
+配置后，数据库会写入 Volume 目录。使用 Railway 部署时，还应将服务启动命令设为 `node server.js`，确保启动时完成 SQLite 初始化。
 
-## 4. Railway 部署流程
+生产环境必须设置至少 32 个字符的随机 `JWT_SECRET` 与 `JWT_REFRESH_SECRET`。服务启动时会检查这两项；未设置或长度不足时将拒绝启动。
+
+## 4. Vercel 部署限制
+
+项目已加入 Vercel 静态前端配置，但这不会让 SQLite 数据库变成持久化存储。Vercel Functions 的本地文件系统会在调用后回收；当前 API 依赖 `better-sqlite3` 和启动时初始化数据库，因此不能把它作为可靠的完整生产部署。要在 Vercel 上提供完整功能，需先将数据库迁移至托管 PostgreSQL（或其他外部持久数据库），并配置连接串、`JWT_SECRET` 和 `JWT_REFRESH_SECRET`。
+
+## 5. Vercel 前端部署
+
+README 中的在线地址指向 Vercel 生产域名。该部署可托管页面资源，但此项目的 API 仍使用 SQLite；Vercel 无服务器文件系统不保证数据库文件持久保存。因此不可在该环境创建真实用户或依赖数据留存。完整线上功能应先迁移到托管 PostgreSQL 等外部数据库，再配置数据库连接和生产 JWT 密钥。
+
+## 6. Railway 完整服务部署
 
 1. 将代码推送到 GitHub。
 2. 打开 https://railway.app。
@@ -65,7 +75,7 @@ const RAILWAY_VOLUME_DIR = process.env.RAILWAY_VOLUME_DIR;
 8. 等待部署完成。
 9. 打开 Railway 分配的域名访问项目。
 
-## 5. 发布前检查清单
+## 7. 发布前检查清单
 
 - [ ] `.env` 没有被 Git 跟踪
 - [ ] `campus_mate.db` 没有被 Git 跟踪
@@ -74,7 +84,7 @@ const RAILWAY_VOLUME_DIR = process.env.RAILWAY_VOLUME_DIR;
 - [ ] Railway 环境变量已配置
 - [ ] 线上访问地址已补充到 GitHub About 或 README
 
-## 6. 常见问题
+## 8. 常见问题
 
 ### 登录后提示 token 无效
 
